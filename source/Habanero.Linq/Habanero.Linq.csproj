@@ -31,23 +31,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="antlr.runtime">
-      <HintPath>..\..\lib\antlr.runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Antlr3.Runtime">
-      <HintPath>..\..\lib\Antlr3.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Antlr3.Utility">
-      <HintPath>..\..\lib\Antlr3.Utility.dll</HintPath>
-    </Reference>
     <Reference Include="Habanero.Base">
       <HintPath>..\..\lib\Habanero.Base.dll</HintPath>
     </Reference>
     <Reference Include="Habanero.BO">
       <HintPath>..\..\lib\Habanero.BO.dll</HintPath>
     </Reference>
-    <Reference Include="StringTemplate">
-      <HintPath>..\..\lib\StringTemplate.dll</HintPath>
+    <Reference Include="log4net">
+      <HintPath>..\..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Remotion, Version=1.13.18.2, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Remotion.dll</HintPath>
+    </Reference>
+    <Reference Include="Remotion.Data.Linq">
+      <HintPath>..\..\lib\Remotion.Data.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -58,113 +56,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
-    <Compile Include="n\AstPolymorphicProcessor.cs" />
-    <Compile Include="n\ASTQueryTranslatorFactory.cs" />
-    <Compile Include="n\CaseInsensitiveStringStream.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="n\CollectionProperties.cs" />
-    <Compile Include="n\CrossJoinDictionaryArrays.cs" />
-    <Compile Include="n\DetailedSemanticException.cs" />
-    <Compile Include="n\ErrorCounter.cs" />
-    <Compile Include="n\generated\HqlLexer.cs" />
-    <Compile Include="n\generated\HqlParser.cs" />
-    <Compile Include="n\generated\HqlSqlWalker.cs" />
-    <Compile Include="n\HqlLexer.cs" />
-    <Compile Include="n\HqlParser.cs" />
-    <Compile Include="n\HqlSqlWalker.cs" />
-    <Compile Include="n\HqlToken.cs" />
-    <Compile Include="n\IErrorReporter.cs" />
-    <Compile Include="n\InvalidPathException.cs" />
-    <Compile Include="n\InvalidWithClauseException.cs" />
-    <Compile Include="n\IParseErrorHandler.cs" />
-    <Compile Include="n\PolymorphicQuerySourceDetector.cs" />
-    <Compile Include="n\QuerySourceDetector.cs" />
-    <Compile Include="n\QuerySyntaxException.cs" />
-    <Compile Include="n\QueryTranslatorImpl.cs" />
-    <Compile Include="n\SemanticException.cs" />
-    <Compile Include="n\SessionFactoryHelperExtensions.cs" />
-    <Compile Include="n\SqlGenerator.cs" />
-    <Compile Include="n\tree\AbstractNullnessCheckNode.cs" />
-    <Compile Include="n\tree\AbstractRestrictableStatement.cs" />
-    <Compile Include="n\tree\AbstractSelectExpression.cs" />
-    <Compile Include="n\tree\AbstractStatement.cs" />
-    <Compile Include="n\tree\AggregateNode.cs" />
-    <Compile Include="n\tree\AssignmentSpecification.cs" />
-    <Compile Include="n\tree\ASTErrorNode.cs" />
-    <Compile Include="n\tree\ASTFactory.cs" />
-    <Compile Include="n\tree\ASTNode.cs" />
-    <Compile Include="n\tree\ASTTreeAdaptor.cs" />
-    <Compile Include="n\tree\BetweenOperatorNode.cs" />
-    <Compile Include="n\tree\BinaryArithmeticOperatorNode.cs" />
-    <Compile Include="n\tree\BinaryLogicOperatorNode.cs" />
-    <Compile Include="n\tree\BooleanLiteralNode.cs" />
-    <Compile Include="n\tree\Case2Node.cs" />
-    <Compile Include="n\tree\CaseNode.cs" />
-    <Compile Include="n\tree\CollectionFunction.cs" />
-    <Compile Include="n\tree\ConstructorNode.cs" />
-    <Compile Include="n\tree\CountNode.cs" />
-    <Compile Include="n\tree\DeleteStatement.cs" />
-    <Compile Include="n\tree\DotNode.cs" />
-    <Compile Include="n\tree\FromClause.cs" />
-    <Compile Include="n\tree\FromElement.cs" />
-    <Compile Include="n\tree\FromElementFactory.cs" />
-    <Compile Include="n\tree\FromElementType.cs" />
-    <Compile Include="n\tree\FromReferenceNode.cs" />
-    <Compile Include="n\tree\HqlSqlWalkerNode.cs" />
-    <Compile Include="n\tree\HqlSqlWalkerTreeAdapter.cs" />
-    <Compile Include="n\tree\HqlSqlWalkerTreeNodeStream.cs" />
-    <Compile Include="n\tree\IASTFactory.cs" />
-    <Compile Include="n\tree\IASTNode.cs" />
-    <Compile Include="n\tree\IBinaryOperatorNode.cs" />
-    <Compile Include="n\tree\IdentNode.cs" />
-    <Compile Include="n\tree\IDisplayableNode.cs" />
-    <Compile Include="n\tree\IExpectedTypeAwareNode.cs" />
-    <Compile Include="n\tree\IInitializableNode.cs" />
-    <Compile Include="n\tree\ImpliedFromElement.cs" />
-    <Compile Include="n\tree\IndexNode.cs" />
-    <Compile Include="n\tree\InLogicOperatorNode.cs" />
-    <Compile Include="n\tree\InsertStatement.cs" />
-    <Compile Include="n\tree\IntoClause.cs" />
-    <Compile Include="n\tree\IOperatorNode.cs" />
-    <Compile Include="n\tree\IParameterContainer.cs" />
-    <Compile Include="n\tree\IPathNode.cs" />
-    <Compile Include="n\tree\IResolvableNode.cs" />
-    <Compile Include="n\tree\IRestrictableStatement.cs" />
-    <Compile Include="n\tree\ISelectExpression.cs" />
-    <Compile Include="n\tree\ISessionFactoryAwareNode.cs" />
-    <Compile Include="n\tree\IsNotNullLogicOperatorNode.cs" />
-    <Compile Include="n\tree\IsNullLogicOperatorNode.cs" />
-    <Compile Include="n\tree\IStatement.cs" />
-    <Compile Include="n\tree\IUnaryOperatorNode.cs" />
-    <Compile Include="n\tree\JavaConstantNode.cs" />
-    <Compile Include="n\tree\LiteralNode.cs" />
-    <Compile Include="n\tree\MethodNode.cs" />
-    <Compile Include="n\tree\OrderByClause.cs" />
-    <Compile Include="n\tree\ParameterNode.cs" />
-    <Compile Include="n\tree\QueryNode.cs" />
-    <Compile Include="n\tree\SelectClause.cs" />
-    <Compile Include="n\tree\SelectExpressionImpl.cs" />
-    <Compile Include="n\tree\SelectExpressionList.cs" />
-    <Compile Include="n\tree\SqlFragment.cs" />
-    <Compile Include="n\tree\SqlNode.cs" />
-    <Compile Include="n\tree\UnaryArithmeticNode.cs" />
-    <Compile Include="n\tree\UnaryLogicOperatorNode.cs" />
-    <Compile Include="n\tree\UpdateStatement.cs" />
-    <Compile Include="n\util\AliasGenerator.cs" />
-    <Compile Include="n\util\ASTAppender.cs" />
-    <Compile Include="n\util\ASTIterator.cs" />
-    <Compile Include="n\util\ASTPrinter.cs" />
-    <Compile Include="n\util\ASTUtil.cs" />
-    <Compile Include="n\util\CollectingNodeVisitor.cs" />
-    <Compile Include="n\util\ColumnHelper.cs" />
-    <Compile Include="n\util\IVisitationStrategy.cs" />
-    <Compile Include="n\util\JoinProcessor.cs" />
-    <Compile Include="n\util\LiteralProcessor.cs" />
-    <Compile Include="n\util\NodeTraverser.cs" />
-    <Compile Include="n\util\PathHelper.cs" />
-    <Compile Include="n\util\SyntheticAndFactory.cs" />
+    <Compile Include="HabQueryable.cs" />
+    <Compile Include="HabQueryExecutor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
