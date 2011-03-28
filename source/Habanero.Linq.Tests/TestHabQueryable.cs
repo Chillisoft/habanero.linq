@@ -10,6 +10,7 @@ using NUnit.Framework;
 
 namespace Habanero.Linq.Tests
 {
+    // ReSharper disable InconsistentNaming
     [TestFixture]
     public class TestHabQueryable
     {
@@ -62,7 +63,7 @@ namespace Habanero.Linq.Tests
         //    string className = classNode.Text;
 
         //     MyDB db = new MyDB();
-        //    var result = from p in db.Persons
+        //    var result = from p in GetDb().Persons
         //                 where p.Name == "Peter"
         //                 select p;
 
@@ -71,30 +72,25 @@ namespace Habanero.Linq.Tests
         //}
 
         [Test]
-        public void Test_SimpleLinqQuery()
+
+        public void _FirstTestEver()
         {
             //---------------Set up test pack-------------------
-            Person p1 = new Person();
-            p1.Name = "Peter";
-            p1.Save();
-            MyDB db = new MyDB();
+            CreatePerson("Peter");
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     select p; 
             //---------------Test Result -----------------------
             Assert.AreEqual(1, b.ToList().Count);
         }
 
         [Test]
-        public void Test_WhereClause_Operator_Equals()
+        public void WhereClause_Operator_Equals()
         {
             //---------------Set up test pack-------------------
-            CreatePerson("Peter");
-            CreatePerson("Bob");
-            CreatePerson("Peter");
-            MyDB db = new MyDB();
+            CreatePersons("Peter", "Bob", "Peter");
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     where p.Name == "Peter"
                     select p; 
             //---------------Test Result -----------------------
@@ -102,15 +98,12 @@ namespace Habanero.Linq.Tests
         }
 
         [Test]
-        public void Test_WhereClause_Operator_GreaterThan()
+        public void WhereClause_Operator_GreaterThan()
         {
             //---------------Set up test pack-------------------
-            CreatePerson(12);
-            CreatePerson(15);
-            CreatePerson(18);
-            MyDB db = new MyDB();
+            CreatePersons(12, 15, 18);
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     where p.Age > 15
                     select p; 
             //---------------Test Result -----------------------
@@ -118,15 +111,12 @@ namespace Habanero.Linq.Tests
         }
 
         [Test]
-        public void Test_WhereClause_Operator_GreaterThanOrEqual()
+        public void WhereClause_Operator_GreaterThanOrEqual()
         {
             //---------------Set up test pack-------------------
-            CreatePerson(12);
-            CreatePerson(15);
-            CreatePerson(18);
-            MyDB db = new MyDB();
+            CreatePersons(12, 15, 18);
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     where p.Age >= 15
                     select p; 
             //---------------Test Result -----------------------
@@ -134,15 +124,12 @@ namespace Habanero.Linq.Tests
         }
 
         [Test]
-        public void Test_WhereClause_Operator_LessThan()
+        public void WhereClause_Operator_LessThan()
         {
             //---------------Set up test pack-------------------
-            CreatePerson(12);
-            CreatePerson(15);
-            CreatePerson(18);
-            MyDB db = new MyDB();
+            CreatePersons(12, 15, 18);
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     where p.Age < 15
                     select p; 
             //---------------Test Result -----------------------
@@ -150,15 +137,12 @@ namespace Habanero.Linq.Tests
         }
 
         [Test]
-        public void Test_WhereClause_Operator_LessThanOrEqual()
+        public void WhereClause_Operator_LessThanOrEqual()
         {
             //---------------Set up test pack-------------------
-            CreatePerson(12);
-            CreatePerson(15);
-            CreatePerson(18);
-            MyDB db = new MyDB();
+            CreatePersons(12, 15, 18);
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     where p.Age <= 15
                     select p; 
             //---------------Test Result -----------------------
@@ -166,16 +150,12 @@ namespace Habanero.Linq.Tests
         }
 
         [Test]
-        public void Test_WhereClause_Operator_NotEqual()
+        public void WhereClause_Operator_NotEqual()
         {
             //---------------Set up test pack-------------------
-            CreatePerson(12);
-            CreatePerson(15);
-            CreatePerson(18);
-            CreatePerson(20);
-            MyDB db = new MyDB();
+            CreatePersons(12, 15, 18, 20);
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     where p.Age != 12
                     select p; 
             //---------------Test Result -----------------------
@@ -183,16 +163,13 @@ namespace Habanero.Linq.Tests
         }
 
         [Test]
-        public void Test_WhereClause_LogicalOperator_AndAlso()
+        public void WhereClause_LogicalOperator_AndAlso()
         {
             //---------------Set up test pack-------------------
-            CreatePerson("Peter", 12);
-            CreatePerson("Peter", 15);
-            CreatePerson("Peter", 18);
-            CreatePerson("Bob", 13);
-            MyDB db = new MyDB();
+            CreatePerson("Peter", 12); CreatePerson("Peter", 15);
+            CreatePerson("Peter", 18); CreatePerson("Bob", 13);
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     where (p.Age < 16 && p.Name == "Peter")
                     select p; 
             //---------------Test Result -----------------------
@@ -200,16 +177,13 @@ namespace Habanero.Linq.Tests
         }
 
         [Test]
-        public void Test_WhereClause_LogicalOperator_And()
+        public void WhereClause_LogicalOperator_And()
         {
             //---------------Set up test pack-------------------
-            CreatePerson("Peter", 12);
-            CreatePerson("Peter", 15);
-            CreatePerson("Peter", 18);
-            CreatePerson("Bob", 13);
-            MyDB db = new MyDB();
+            CreatePerson("Peter", 12); CreatePerson("Peter", 15);
+            CreatePerson("Peter", 18); CreatePerson("Bob", 13);
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     where (p.Age < 16 & p.Name == "Peter")
                     select p; 
             //---------------Test Result -----------------------
@@ -217,16 +191,13 @@ namespace Habanero.Linq.Tests
         }
 
         [Test]
-        public void Test_WhereClause_LogicalOperator_Or()
+        public void WhereClause_LogicalOperator_Or()
         {
             //---------------Set up test pack-------------------
-            CreatePerson("Peter", 12);
-            CreatePerson("Peter", 15);
-            CreatePerson("Bob", 18);
-            CreatePerson("Bob", 13);
-            MyDB db = new MyDB();
+            CreatePerson("Peter", 12); CreatePerson("Peter", 15);
+            CreatePerson("Bob", 18); CreatePerson("Bob", 13);
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     where (p.Age < 14 | p.Name == "Peter")
                     select p; 
             //---------------Test Result -----------------------
@@ -234,16 +205,13 @@ namespace Habanero.Linq.Tests
         }
 
         [Test]
-        public void Test_WhereClause_LogicalOperator_OrElse()
+        public void WhereClause_LogicalOperator_OrElse()
         {
             //---------------Set up test pack-------------------
-            CreatePerson("Peter", 12);
-            CreatePerson("Peter", 15);
-            CreatePerson("Bob", 18);
-            CreatePerson("Bob", 13);
-            MyDB db = new MyDB();
+            CreatePerson("Peter", 12); CreatePerson("Peter", 15);
+            CreatePerson("Bob", 18); CreatePerson("Bob", 13);
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     where (p.Age < 14 || p.Name == "Peter")
                     select p; 
             //---------------Test Result -----------------------
@@ -251,23 +219,78 @@ namespace Habanero.Linq.Tests
         }
 
         [Test]
-        public void Test_SelectClause()
+        public void SelectClause_SingleField()
         {
             //---------------Set up test pack-------------------
-            CreatePerson("Peter", 12);
-            CreatePerson("Peter", 15);
-            CreatePerson("Bob", 18);
-            CreatePerson("Bob", 13);
-            MyDB db = new MyDB();
+            CreatePerson("Peter", 12); CreatePerson("Peter", 15);
+            CreatePerson("Bob", 18); CreatePerson("Bob", 13);
             //---------------Execute Test ----------------------
-            var b = from p in db.Persons
+            var b = from p in GetDb().Persons
                     where (p.Age < 14)
                     select p.Name; 
             //---------------Test Result -----------------------
             var names = b.ToList();
             Assert.AreEqual(2, names.Count);
-            CollectionAssert.Contains("Peter", names);
-            CollectionAssert.Contains("Bob", names);
+            CollectionAssert.Contains(names, "Peter");
+            CollectionAssert.Contains(names, "Bob");
+        }
+
+        [Test]
+        public void SelectClause_TwoFields_NoCalculations()
+        {
+            //---------------Set up test pack-------------------
+            CreatePerson("Peter", 12); CreatePerson("Peter", 15);
+            CreatePerson("Bob", 18); CreatePerson("Bob", 13);
+            //---------------Execute Test ----------------------
+            var b = from p in GetDb().Persons
+                    where (p.Age < 14)
+                    select new {p.Name, p.Age}; 
+            //---------------Test Result -----------------------
+            var peoples = b.ToList();
+            Assert.AreEqual(2, peoples.Count);
+            Assert.AreEqual("Bob", peoples[0].Name);
+            Assert.AreEqual(13, peoples[0].Age);
+            Assert.AreEqual("Peter", peoples[1].Name);
+            Assert.AreEqual(12, peoples[1].Age);
+        }
+
+        [Test]
+        public void OrderClause_OnProperty()
+        {
+            //---------------Set up test pack-------------------
+            CreatePersons("Bob", "Peter", "Alice");
+            //---------------Assert Precondition----------------
+            var b = from p in GetDb().Persons
+                    orderby p.Name
+                    select p; 
+            //---------------Execute Test ----------------------
+            var people = b.ToList();
+            //---------------Test Result -----------------------
+            Assert.AreEqual("Alice", people[0].Name);
+            Assert.AreEqual("Bob", people[1].Name);
+            Assert.AreEqual("Peter", people[2].Name);
+        }
+
+        [Test]
+        public void OrderClause_OnProperty_Descending()
+        {
+            //---------------Set up test pack-------------------
+            CreatePersons("Bob", "Peter", "Alice");
+            //---------------Assert Precondition----------------
+            var b = from p in GetDb().Persons
+                    orderby p.Name descending 
+                    select p;
+            //---------------Execute Test ----------------------
+            var people = b.ToList();
+            //---------------Test Result -----------------------
+            Assert.AreEqual("Peter", people[0].Name);
+            Assert.AreEqual("Bob", people[1].Name);
+            Assert.AreEqual("Alice", people[2].Name);
+        }
+
+        private MyDB GetDb()
+        {
+            return new MyDB();
         }
 
         private void CreatePerson(string name)
@@ -283,6 +306,16 @@ namespace Habanero.Linq.Tests
         private void CreatePerson(string name, int age)
         {
             var p1 = new Person { Age = age, Name = name }; p1.Save();
+        }
+
+        private void CreatePersons(params string[] names)
+        {
+            names.ToList().ForEach(CreatePerson);
+        }
+
+        private void CreatePersons(params int[] ages)
+        {
+            ages.ToList().ForEach(CreatePerson);
         }
 
 

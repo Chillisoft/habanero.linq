@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -7,6 +8,7 @@ using System.Text;
 using Habanero.Base;
 using Habanero.BO;
 using Habanero.BO.ClassDefinition;
+using Remotion.Collections;
 using Remotion.Data.Linq;
 using Remotion.Data.Linq.Clauses;
 using Remotion.Data.Linq.Clauses.ExpressionTreeVisitors;
@@ -34,14 +36,85 @@ namespace Habanero.Linq
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
             ISelectQuery selectQuery = HabQueryModelVisitor.GenerateSelectQuery(queryModel);
-            var businessObjectCollection = BORegistry.DataAccessor.BusinessObjectLoader.GetBusinessObjectCollection(ClassDef.ClassDefs[typeof(T)], selectQuery);
-            return (from object obj in businessObjectCollection select (T)obj).ToList();
+            var businessObjectCollection = BORegistry.DataAccessor.BusinessObjectLoader.GetBusinessObjectCollection(selectQuery.ClassDef, selectQuery);
+            if (typeof(T) == selectQuery.ClassDef.ClassType) return (from object obj in businessObjectCollection select (T)obj).ToList();
+
+            var expression = queryModel.SelectClause.Selector;
+            if (expression.NodeType == ExpressionType.MemberAccess)
+            {
+                var member = (MemberExpression) expression;
+                string name = member.Member.Name;
+                return new PropertyEnumerator<T>(businessObjectCollection, name);
+            } else if (expression.NodeType == ExpressionType.New)
+            {
+                var newExpression = (NewExpression) expression;
+                var propertyNames = newExpression.Members.Select(info => info.Name);
+                return new NewEnumerator<T>(businessObjectCollection, newExpression.Constructor, propertyNames);
+            }
+            
+            return new List<T>();
+        }
+
+        private class NewEnumerator<T> : IEnumerable<T>
+        {
+            private readonly IBusinessObjectCollection _businessObjectCollection;
+            private readonly ConstructorInfo _constructor;
+            private readonly IEnumerable<string> _propertyNames;
+
+            public NewEnumerator(IBusinessObjectCollection businessObjectCollection, ConstructorInfo constructor, IEnumerable<string> propertyNames)
+            {
+                _businessObjectCollection = businessObjectCollection;
+                _constructor = constructor;
+                _propertyNames = propertyNames;
+            }
+            public IEnumerator<T> GetEnumerator()
+            {
+                var enumerator = _businessObjectCollection.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    var element = (IBusinessObject)enumerator.Current;
+                    var propertyValues = _propertyNames.Select(element.GetPropertyValue);
+                    var obj = _constructor.Invoke(propertyValues.ToArray());
+                    yield return (T)obj;
+                }
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+        private class PropertyEnumerator<T> : IEnumerable<T>
+        {
+            private readonly IBusinessObjectCollection _businessObjectCollection;
+            private readonly string _propertyName;
+
+            public PropertyEnumerator(IBusinessObjectCollection businessObjectCollection, string propertyName)
+            {
+                _businessObjectCollection = businessObjectCollection;
+                _propertyName = propertyName;
+            }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                var enumerator = _businessObjectCollection.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    var element = (IBusinessObject) enumerator.Current;
+                    yield return (T) element.GetPropertyValue(_propertyName);
+                }
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
         }
     }
 
     public class HabQueryModelVisitor : QueryModelVisitorBase
     {
-        private ISelectQuery _selectQuery = new SelectQuery();
+        private ISelectQuery _selectQuery;// = new SelectQuery();
 
         public static ISelectQuery GenerateSelectQuery(QueryModel queryModel)
         {
@@ -72,11 +145,35 @@ namespace Habanero.Linq
 
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
         {
-            var source = _selectQuery.Source;
-            QueryBuilder.PrepareSource(ClassDef.ClassDefs["Habanero.Linq.Tests", "Person"], ref source);
-            _selectQuery.Source = source;
+            //var source = _selectQuery.Source;
+            var itemClassDef = ClassDef.ClassDefs[queryModel.MainFromClause.ItemType];
+            _selectQuery = QueryBuilder.CreateSelectQuery(itemClassDef);
+            //QueryBuilder.PrepareSource(itemClassDef, ref source);
+            //_selectQuery.Source = source;
 
             base.VisitSelectClause(selectClause, queryModel);
+        }
+
+        public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
+        {
+            _selectQuery.OrderCriteria = GetOrderCriteria(orderByClause.Orderings);
+            base.VisitOrderByClause(orderByClause, queryModel, index);
+        }
+
+        private IOrderCriteria GetOrderCriteria(ObservableCollection<Ordering> orderings)
+        {
+            var orderCriteria = new OrderCriteria();
+            foreach (var ordering in orderings)
+            {
+                var expression = ordering.Expression;
+                if (expression.NodeType == ExpressionType.MemberAccess)
+                {
+                    var memberExpression = (MemberExpression) expression;
+                    orderCriteria.Add(memberExpression.Member.Name, ordering.OrderingDirection == OrderingDirection.Asc ? SortDirection.Ascending : SortDirection.Descending);
+                }
+            }
+
+            return orderCriteria;
         }
 
         private Criteria GetCriteria(Expression expression)
