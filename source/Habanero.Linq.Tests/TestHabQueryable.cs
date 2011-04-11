@@ -14,15 +14,19 @@ namespace Habanero.Linq.Tests
     [TestFixture]
     public class TestHabQueryable
     {
-        private IClassDef _personClassDef;
 
         [TestFixtureSetUp]
         public void SetupFixture()
         {
             ClassDef.ClassDefs.Clear();
-            var mapper = new ClassAutoMapper(typeof(Person));
-            _personClassDef = mapper.Map();
-            ClassDef.ClassDefs.Add(_personClassDef);
+            MapType(typeof(Person));
+            MapType(typeof(Address));
+        }
+
+        private void MapType(Type typeToMap)
+        {
+            var mapper = new ClassAutoMapper(typeToMap);
+            ClassDef.ClassDefs.Add(mapper.Map());
         }
 
         [SetUp]
@@ -31,54 +35,13 @@ namespace Habanero.Linq.Tests
             BORegistry.DataAccessor = new DataAccessorInMemory();
         }
 
-        //[Test]
-        //[Ignore]
-        //public void SimpleSelect()
-        //{
-        //    string hsql = "select * from Person";
-
-        //    ISelectQuery query = DoMagic(hsql);
-        //    Assert.AreSame(_personClassDef, query.ClassDef);
-        //    Assert.IsNull(query.Criteria);
-        //}
-
-        //private ISelectQuery DoMagic(string hsql)
-        //{
-        //    ICharStream stream = new ANTLRStringStream(hsql);
-        //    HqlLexer lexer = new HqlLexer(stream);
-        //    ITokenStream tokenStream = new CommonTokenStream(lexer);
-        //    HqlParser parser = new HqlParser(tokenStream) {TreeAdaptor = new ASTTreeAdaptor(), Filter = true};
-
-        //    HqlParser.statement_return statementReturn = parser.statement();
-        //    ASTNode tree = (ASTNode) statementReturn.Tree;
-
-        //    IASTNode queryNode = tree.GetChild(0);
-
-            
-        //    IASTNode selectNode = queryNode.GetChild(1);
-            
-        //    IASTNode fromNode = queryNode.GetChild(0);
-        //    IASTNode fromRangeNode = fromNode.GetChild(0);
-        //    IASTNode classNode = fromRangeNode.GetChild(0);
-        //    string className = classNode.Text;
-
-        //     MyDB db = new MyDB();
-        //    var result = from p in GetDb().Persons
-        //                 where p.Name == "Peter"
-        //                 select p;
-
-        //    IClassDef classDef = ClassDef.ClassDefs[typeof(Person).Assembly.GetName().Name, className];
-        //    return QueryBuilder.CreateSelectQuery(classDef);
-        //}
-
         [Test]
-
         public void _FirstTestEver()
         {
             //---------------Set up test pack-------------------
             CreatePerson("Peter");
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     select p; 
             //---------------Test Result -----------------------
             Assert.AreEqual(1, b.ToList().Count);
@@ -90,7 +53,7 @@ namespace Habanero.Linq.Tests
             //---------------Set up test pack-------------------
             CreatePersons("Peter", "Bob", "Peter");
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where p.Name == "Peter"
                     select p; 
             //---------------Test Result -----------------------
@@ -103,7 +66,7 @@ namespace Habanero.Linq.Tests
             //---------------Set up test pack-------------------
             CreatePersons(12, 15, 18);
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where p.Age > 15
                     select p; 
             //---------------Test Result -----------------------
@@ -116,7 +79,7 @@ namespace Habanero.Linq.Tests
             //---------------Set up test pack-------------------
             CreatePersons(12, 15, 18);
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where p.Age >= 15
                     select p; 
             //---------------Test Result -----------------------
@@ -129,7 +92,7 @@ namespace Habanero.Linq.Tests
             //---------------Set up test pack-------------------
             CreatePersons(12, 15, 18);
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where p.Age < 15
                     select p; 
             //---------------Test Result -----------------------
@@ -142,7 +105,7 @@ namespace Habanero.Linq.Tests
             //---------------Set up test pack-------------------
             CreatePersons(12, 15, 18);
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where p.Age <= 15
                     select p; 
             //---------------Test Result -----------------------
@@ -155,7 +118,7 @@ namespace Habanero.Linq.Tests
             //---------------Set up test pack-------------------
             CreatePersons(12, 15, 18, 20);
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where p.Age != 12
                     select p; 
             //---------------Test Result -----------------------
@@ -169,7 +132,7 @@ namespace Habanero.Linq.Tests
             CreatePerson("Peter", 12); CreatePerson("Peter", 15);
             CreatePerson("Peter", 18); CreatePerson("Bob", 13);
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where (p.Age < 16 && p.Name == "Peter")
                     select p; 
             //---------------Test Result -----------------------
@@ -183,7 +146,7 @@ namespace Habanero.Linq.Tests
             CreatePerson("Peter", 12); CreatePerson("Peter", 15);
             CreatePerson("Peter", 18); CreatePerson("Bob", 13);
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where (p.Age < 16 & p.Name == "Peter")
                     select p; 
             //---------------Test Result -----------------------
@@ -197,7 +160,7 @@ namespace Habanero.Linq.Tests
             CreatePerson("Peter", 12); CreatePerson("Peter", 15);
             CreatePerson("Bob", 18); CreatePerson("Bob", 13);
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where (p.Age < 14 | p.Name == "Peter")
                     select p; 
             //---------------Test Result -----------------------
@@ -211,7 +174,7 @@ namespace Habanero.Linq.Tests
             CreatePerson("Peter", 12); CreatePerson("Peter", 15);
             CreatePerson("Bob", 18); CreatePerson("Bob", 13);
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where (p.Age < 14 || p.Name == "Peter")
                     select p; 
             //---------------Test Result -----------------------
@@ -225,7 +188,7 @@ namespace Habanero.Linq.Tests
             CreatePerson("Peter", 12); CreatePerson("Peter", 15);
             CreatePerson("Bob", 18); CreatePerson("Bob", 13);
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where (p.Age < 14)
                     select p.Name; 
             //---------------Test Result -----------------------
@@ -242,7 +205,7 @@ namespace Habanero.Linq.Tests
             CreatePerson("Peter", 12); CreatePerson("Peter", 15);
             CreatePerson("Bob", 18); CreatePerson("Bob", 13);
             //---------------Execute Test ----------------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     where (p.Age < 14)
                     select new {p.Name, p.Age}; 
             //---------------Test Result -----------------------
@@ -260,7 +223,7 @@ namespace Habanero.Linq.Tests
             //---------------Set up test pack-------------------
             CreatePersons("Bob", "Peter", "Alice");
             //---------------Assert Precondition----------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     orderby p.Name
                     select p; 
             //---------------Execute Test ----------------------
@@ -277,7 +240,7 @@ namespace Habanero.Linq.Tests
             //---------------Set up test pack-------------------
             CreatePersons("Bob", "Peter", "Alice");
             //---------------Assert Precondition----------------
-            var b = from p in GetDb().Persons
+            var b = from p in MyDB.Persons
                     orderby p.Name descending 
                     select p;
             //---------------Execute Test ----------------------
@@ -288,14 +251,39 @@ namespace Habanero.Linq.Tests
             Assert.AreEqual("Alice", people[2].Name);
         }
 
-        private MyDB GetDb()
+        [Test]
+        public void JoinClause_SimpleCase()
         {
-            return new MyDB();
+            //---------------Set up test pack-------------------
+            CreatePersonsWithAddress("Bob","South Africa");
+            CreatePersonsWithAddress("Paul","Zimbabwe");
+            
+            //---------------Execute Test ----------------------
+            var b = from p in MyDB.Persons
+                    join a in MyDB.Addresses on p.Address equals a
+                    where a.Country == "South Africa"
+                    select p;
+            //---------------Test Result -----------------------
+            var people = b.ToList();
+            Assert.AreEqual(1,people.Count);
+            Assert.AreEqual("Bob", people[0].Name);
+
         }
 
-        private void CreatePerson(string name)
+        private void CreatePersonsWithAddress(string name, string country)
+        {
+            var person = CreatePerson(name);
+            var address = new Address();
+            address.Country = country;
+            person.Address = address;
+            address.Save();
+
+        }
+
+        private Person CreatePerson(string name)
         {
             var p1 = new Person { Name = name }; p1.Save();
+            return p1;
         }
 
         private void CreatePerson(int age)
@@ -310,7 +298,7 @@ namespace Habanero.Linq.Tests
 
         private void CreatePersons(params string[] names)
         {
-            names.ToList().ForEach(CreatePerson);
+            names.ToList().ForEach(s => CreatePerson(s));
         }
 
         private void CreatePersons(params int[] ages)
@@ -321,11 +309,16 @@ namespace Habanero.Linq.Tests
 
     }
 
-    public class MyDB
+    public static class MyDB
     {
-        public IQueryable<Person> Persons
+        public static IQueryable<Person> Persons
         {
             get { return new HabQueryable<Person>(); }
+        }
+
+        public static IQueryable<Address> Addresses
+        {
+            get { return new HabQueryable<Address>(); }
         }
     }
 
@@ -341,5 +334,32 @@ namespace Habanero.Linq.Tests
             get { return this.GetPropertyValue(person => person.Age); }
             set { this.SetPropertyValue(person => person.Age, value); }
         }
+
+        public Address Address
+        {
+            get { return this.Relationships.GetRelatedObject<Address>("Address"); }
+            set { this.Relationships.SetRelatedObject("Address", value); }
+        }
+    }
+
+    public class Address : BusinessObject<Address>
+    {
+        public string AddressLine
+        {
+            get { return this.GetPropertyValue(address => address.AddressLine); }
+            set { this.SetPropertyValue(address => address.AddressLine, value); }
+        }
+
+        public string Country
+        {
+            get { return this.GetPropertyValue(address => address.Country); }
+            set { this.SetPropertyValue(address => address.Country, value); }
+        }
+
+        public BusinessObjectCollection<Person> Persons
+        {
+            get { return this.Relationships.GetRelatedCollection<Person>("Persons"); }
+        }
+        
     }
 }

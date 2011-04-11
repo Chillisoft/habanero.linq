@@ -35,7 +35,8 @@ namespace Habanero.Linq
 
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
-            ISelectQuery selectQuery = HabQueryModelVisitor.GenerateSelectQuery(queryModel);
+            var selectQuery = HabQueryModelVisitor.GenerateSelectQuery(queryModel);
+
             var businessObjectCollection = BORegistry.DataAccessor.BusinessObjectLoader.GetBusinessObjectCollection(selectQuery.ClassDef, selectQuery);
             if (typeof(T) == selectQuery.ClassDef.ClassType) return (from object obj in businessObjectCollection select (T)obj).ToList();
 
@@ -55,6 +56,8 @@ namespace Habanero.Linq
             return new List<T>();
         }
 
+
+         
         private class NewEnumerator<T> : IEnumerable<T>
         {
             private readonly IBusinessObjectCollection _businessObjectCollection;
@@ -154,6 +157,14 @@ namespace Habanero.Linq
             base.VisitSelectClause(selectClause, queryModel);
         }
 
+        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
+        {
+            var joinToSource = Source.FromString(joinClause.ItemType.Name);
+            QueryBuilder.PrepareSource(ClassDef.ClassDefs[joinClause.ItemType], ref joinToSource);
+            _selectQuery.Source.JoinToSource(joinToSource);
+            base.VisitJoinClause(joinClause, queryModel, index);
+        }
+
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
         {
             _selectQuery.OrderCriteria = GetOrderCriteria(orderByClause.Orderings);
@@ -178,7 +189,7 @@ namespace Habanero.Linq
 
         private Criteria GetCriteria(Expression expression)
         {
-            var criteriaString = CriteriaGeneratorExpressionTreeVisitor.GetCriteriaString(expression, _selectQuery);
+            var criteriaString = CriteriaGeneratorExpressionTreeVisitor.GetCriteriaString(expression);
             return CriteriaParser.CreateCriteria(criteriaString);
         }
     }
@@ -199,17 +210,15 @@ namespace Habanero.Linq
                                                                         { ExpressionType.Or, "OR" },
                                                                         { ExpressionType.NotEqual, "<>" }
                                                                     };
-        private readonly ISelectQuery _selectQuery;
         private readonly StringBuilder _criteriaString = new StringBuilder();
 
-        private CriteriaGeneratorExpressionTreeVisitor(ISelectQuery selectQuery)
+        private CriteriaGeneratorExpressionTreeVisitor()
         {
-            _selectQuery = selectQuery;
         }
 
-        public static string GetCriteriaString(Expression linqExpression, ISelectQuery selectQuery)
+        public static string GetCriteriaString(Expression linqExpression)
         {
-            var visitor = new CriteriaGeneratorExpressionTreeVisitor(selectQuery);
+            var visitor = new CriteriaGeneratorExpressionTreeVisitor();
             visitor.VisitExpression(linqExpression);
             return visitor.GetCriteriaString();
         }
@@ -247,7 +256,16 @@ namespace Habanero.Linq
 
         protected override Expression VisitQuerySourceReferenceExpression(Remotion.Data.Linq.Clauses.Expressions.QuerySourceReferenceExpression expression)
         {
-            //_criteriaString.Append(expression.ReferencedQuerySource.ItemName);
+            if (expression.ReferencedQuerySource is JoinClause)
+            {
+                var joinClause = (JoinClause) expression.ReferencedQuerySource;
+                var outerKeySelector = joinClause.OuterKeySelector;
+                if (outerKeySelector is MemberExpression)
+                {
+                    var outerKeyMember = (MemberExpression) outerKeySelector;
+                    _criteriaString.Append(outerKeyMember.Member.Name + ".");
+                }
+            }
             return expression;
         }
 
