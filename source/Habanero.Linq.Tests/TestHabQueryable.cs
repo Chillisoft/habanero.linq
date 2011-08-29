@@ -19,14 +19,8 @@ namespace Habanero.Linq.Tests
         public void SetupFixture()
         {
             ClassDef.ClassDefs.Clear();
-            MapType(typeof(Person));
-            MapType(typeof(Address));
-        }
-
-        private void MapType(Type typeToMap)
-        {
-            var mapper = new ClassAutoMapper(typeToMap);
-            ClassDef.ClassDefs.Add(mapper.Map());
+            var typeSource = new AssemblyTypeSource(typeof (Person));
+            ClassDef.ClassDefs.Add(new AllClassesAutoMapper(typeSource).Map());
         }
 
         [SetUp]

@@ -141,7 +141,7 @@ namespace Habanero.Linq
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
-            _selectQuery.Criteria = GetCriteria(whereClause.Predicate);
+            _selectQuery.Criteria = new CriteriaBuilder(whereClause.Predicate).Build();
 
             base.VisitWhereClause(whereClause, queryModel, index);
         }
@@ -187,101 +187,101 @@ namespace Habanero.Linq
             return orderCriteria;
         }
 
-        private Criteria GetCriteria(Expression expression)
-        {
-            var criteriaString = CriteriaGeneratorExpressionTreeVisitor.GetCriteriaString(expression);
-            return CriteriaParser.CreateCriteria(criteriaString);
-        }
+        //private Criteria GetCriteria(Expression expression)
+        //{
+        //    var criteriaString = CriteriaGeneratorExpressionTreeVisitor.GetCriteriaString(expression);
+        //    return CriteriaParser.CreateCriteria(criteriaString);
+        //}
     }
 
 
-    public class CriteriaGeneratorExpressionTreeVisitor : ThrowingExpressionTreeVisitor
-    {
-        readonly Dictionary<ExpressionType, string> operators = new Dictionary<ExpressionType, string>()
-                                                                    { 
-                                                                        { ExpressionType.Equal, "=" },
-                                                                        { ExpressionType.LessThan, "<" },
-                                                                        { ExpressionType.LessThanOrEqual, "<=" },
-                                                                        { ExpressionType.GreaterThan, ">" },
-                                                                        { ExpressionType.GreaterThanOrEqual, ">=" },
-                                                                        { ExpressionType.AndAlso, "AND" },
-                                                                        { ExpressionType.And, "AND" },
-                                                                        { ExpressionType.OrElse, "OR" },
-                                                                        { ExpressionType.Or, "OR" },
-                                                                        { ExpressionType.NotEqual, "<>" }
-                                                                    };
-        private readonly StringBuilder _criteriaString = new StringBuilder();
+    //public class CriteriaGeneratorExpressionTreeVisitor : ThrowingExpressionTreeVisitor
+    //{
+    //    readonly Dictionary<ExpressionType, string> operators = new Dictionary<ExpressionType, string>()
+    //                                                                { 
+    //                                                                    { ExpressionType.Equal, "=" },
+    //                                                                    { ExpressionType.LessThan, "<" },
+    //                                                                    { ExpressionType.LessThanOrEqual, "<=" },
+    //                                                                    { ExpressionType.GreaterThan, ">" },
+    //                                                                    { ExpressionType.GreaterThanOrEqual, ">=" },
+    //                                                                    { ExpressionType.AndAlso, "AND" },
+    //                                                                    { ExpressionType.And, "AND" },
+    //                                                                    { ExpressionType.OrElse, "OR" },
+    //                                                                    { ExpressionType.Or, "OR" },
+    //                                                                    { ExpressionType.NotEqual, "<>" }
+    //                                                                };
+    //    private readonly StringBuilder _criteriaString = new StringBuilder();
 
-        private CriteriaGeneratorExpressionTreeVisitor()
-        {
-        }
+    //    private CriteriaGeneratorExpressionTreeVisitor()
+    //    {
+    //    }
 
-        public static string GetCriteriaString(Expression linqExpression)
-        {
-            var visitor = new CriteriaGeneratorExpressionTreeVisitor();
-            visitor.VisitExpression(linqExpression);
-            return visitor.GetCriteriaString();
-        }
+    //    public static string GetCriteriaString(Expression linqExpression)
+    //    {
+    //        var visitor = new CriteriaGeneratorExpressionTreeVisitor();
+    //        visitor.VisitExpression(linqExpression);
+    //        return visitor.GetCriteriaString();
+    //    }
 
      
-        public string GetCriteriaString()
-        {
-            return _criteriaString.ToString();
-        }
+    //    public string GetCriteriaString()
+    //    {
+    //        return _criteriaString.ToString();
+    //    }
 
-        protected override Expression VisitBinaryExpression(BinaryExpression expression)
-        {
-            _criteriaString.Append("(");
-            VisitExpression(expression.Left);
-            _criteriaString.Append(" " + operators[expression.NodeType] + " ");
-            VisitExpression(expression.Right);
-            _criteriaString.Append(")");
-            return expression;
-        }
+    //    protected override Expression VisitBinaryExpression(BinaryExpression expression)
+    //    {
+    //        _criteriaString.Append("(");
+    //        VisitExpression(expression.Left);
+    //        _criteriaString.Append(" " + operators[expression.NodeType] + " ");
+    //        VisitExpression(expression.Right);
+    //        _criteriaString.Append(")");
+    //        return expression;
+    //    }
 
-        protected override Expression VisitConstantExpression(ConstantExpression expression)
-        {
-            _criteriaString.Append(expression.Value);
-            return expression;
-        }
+    //    protected override Expression VisitConstantExpression(ConstantExpression expression)
+    //    {
+    //        _criteriaString.Append(expression.Value);
+    //        return expression;
+    //    }
 
-        protected override Expression VisitMemberExpression(MemberExpression expression)
-        {
-            VisitExpression(expression.Expression);
-            //_criteriaString.AppendFormat(".{0}", expression.Member.Name);
-            _criteriaString.AppendFormat("{0}", expression.Member.Name);
+    //    protected override Expression VisitMemberExpression(MemberExpression expression)
+    //    {
+    //        VisitExpression(expression.Expression);
+    //        //_criteriaString.AppendFormat(".{0}", expression.Member.Name);
+    //        _criteriaString.AppendFormat("{0}", expression.Member.Name);
 
-            return expression;
-        }
+    //        return expression;
+    //    }
 
-        protected override Expression VisitQuerySourceReferenceExpression(Remotion.Data.Linq.Clauses.Expressions.QuerySourceReferenceExpression expression)
-        {
-            if (expression.ReferencedQuerySource is JoinClause)
-            {
-                var joinClause = (JoinClause) expression.ReferencedQuerySource;
-                var outerKeySelector = joinClause.OuterKeySelector;
-                if (outerKeySelector is MemberExpression)
-                {
-                    var outerKeyMember = (MemberExpression) outerKeySelector;
-                    _criteriaString.Append(outerKeyMember.Member.Name + ".");
-                }
-            }
-            return expression;
-        }
+    //    protected override Expression VisitQuerySourceReferenceExpression(Remotion.Data.Linq.Clauses.Expressions.QuerySourceReferenceExpression expression)
+    //    {
+    //        if (expression.ReferencedQuerySource is JoinClause)
+    //        {
+    //            var joinClause = (JoinClause) expression.ReferencedQuerySource;
+    //            var outerKeySelector = joinClause.OuterKeySelector;
+    //            if (outerKeySelector is MemberExpression)
+    //            {
+    //                var outerKeyMember = (MemberExpression) outerKeySelector;
+    //                _criteriaString.Append(outerKeyMember.Member.Name + ".");
+    //            }
+    //        }
+    //        return expression;
+    //    }
 
-        // Called when a LINQ expression type is not handled above.
-        protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
-        {
-            string itemText = FormatUnhandledItem(unhandledItem);
-            var message = string.Format("The expression '{0}' (type: {1}) is not supported by this LINQ provider.", itemText, typeof(T));
-            return new NotSupportedException(message);
-        }
+    //    // Called when a LINQ expression type is not handled above.
+    //    protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
+    //    {
+    //        string itemText = FormatUnhandledItem(unhandledItem);
+    //        var message = string.Format("The expression '{0}' (type: {1}) is not supported by this LINQ provider.", itemText, typeof(T));
+    //        return new NotSupportedException(message);
+    //    }
 
-        private string FormatUnhandledItem<T>(T unhandledItem)
-        {
-            var itemAsExpression = unhandledItem as Expression;
-            return itemAsExpression != null ? FormattingExpressionTreeVisitor.Format(itemAsExpression) : unhandledItem.ToString();
-        }
+    //    private string FormatUnhandledItem<T>(T unhandledItem)
+    //    {
+    //        var itemAsExpression = unhandledItem as Expression;
+    //        return itemAsExpression != null ? FormattingExpressionTreeVisitor.Format(itemAsExpression) : unhandledItem.ToString();
+    //    }
 
-    }
+    //}
 }
